@@ -1,0 +1,122 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "sync"
+  recursive_type_depth = 5
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique @db.VarChar(255)
+  password  String?
+  username  String   @unique @db.VarChar(32)
+  first_name String? @db.VarChar(32)
+  last_name  String? @db.VarChar(32)
+  roles     String[] @default([])
+  password_hint String? @db.VarChar(255)
+  failed_login_attempts Int @default(0)
+  logged_in Boolean @default(false)
+
+  moods Mood[]
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  summaries Summary[]
+}
+
+model Mood {
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   String 
+  date      DateTime @db.Timestamp
+  name      String @db.VarChar(32)
+  description String? @db.VarChar(60)
+
+  @@id([user_id, date])
+}
+
+model Summary {
+  id        String   @id @default(cuid())
+  
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   String
+  
+  start     DateTime @db.Timestamp
+  end       DateTime @db.Timestamp
+
+  keywords  String 
+  content   String @db.Text
+
+  recommended_events EventOnSummary[]
+  resources ResourceOnSummary[]
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  name      String @db.VarChar(32) @unique
+  description String? @db.VarChar(511)
+  location String? @db.VarChar(255)
+  link String? @db.VarChar(255)
+
+  summaries ResourceOnSummary[]
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+}
+
+model ResourceOnSummary {
+  summary Summary @relation(fields: [summary_id], references: [id], onDelete: Cascade)
+  summary_id String
+  resource Resource @relation(fields: [resource_id], references: [id], onDelete: Cascade)
+  resource_id String
+
+  @@id([summary_id, resource_id])
+}
+
+model EventOnSummary {
+  event   Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  event_id String
+  summary Summary @relation(fields: [summary_id], references: [id], onDelete: Cascade)
+  summary_id String
+
+  @@id([event_id, summary_id])
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  name      String @db.VarChar(32)
+  start     DateTime @db.Timestamp
+  end       DateTime @db.Timestamp
+  types     EventOnType[]
+  
+  description String? @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  summaries EventOnSummary[]
+}
+
+model Type {
+  id        String   @id @default(cuid())
+  name      String @db.VarChar(32)
+  description String? @db.VarChar(255)
+
+  events EventOnType[]
+}
+
+model EventOnType {
+  event   Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  event_id String
+  type    Type @relation(fields: [type_id], references: [id], onDelete: Cascade)
+  type_id String
+
+  @@id([event_id, type_id])
+}

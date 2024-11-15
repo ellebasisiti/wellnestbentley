@@ -1,0 +1,15 @@
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = 'minimal'
+
+[theme]
+backgroundColor = "#F3EBE6"
+textColor = "#31333F"
+primaryColor = "#d3d3d3"
+secondaryBackgroundColor = "#f4e1d2"
+font = "serif"
+
+[server]
+enableStaticServing = true

@@ -1,0 +1,9 @@
+streamlit==1.40.1
+streamlit-authenticator==0.4.1
+streamlit-calendar==1.2.0
+streamlit-lottie==0.0.5
+st-theme==1.2.3
+openai
+polars
+prisma
+python-dotenv
